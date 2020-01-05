@@ -1,0 +1,170 @@
+<template>
+  <div class="container2" >
+    <div class="Mobname">
+      <h2>SampleApp</h2>
+    </div>
+    
+      <div class=" row Baccolor">
+
+
+        <div class="col-md-12 col-sm-12">
+          <h3>Screen1</h3>
+        </div>
+      </div>
+   
+      <div class=" text-center">
+          <h3><mark>USER DETAILS</mark></h3>
+      </div>
+     
+      <div class=" text-center">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="thead-dark">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>No of Items</th>
+                <th>Bill</th>
+                <th>Actions</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(element,index) in users">
+                <td>{{index+1}}</td>
+                <td >{{element.name}}</td>
+                <td>{{element.location}}</td>
+                <td>{{element.itemcount}}</td>
+                <td>{{element.bill }}</td>
+
+                <td>
+                  <b-button class="btn btn-md  btn-default border" @click="modalShow = !modalShow; userInfo=element">
+                    <i class="fa fa-pencil"></i>
+                  </b-button><b-button class="btn btn-default border" id="deleteButton" @click="showMsgBoxOne(element.id)">
+                    <i class="fa fa-trash"></i>
+                  </b-button>
+                </td>
+              </tr>
+              <tr>
+                <td>{{users.length+1}}</td>
+                <td><input type="text" v-model="name" placeholder="name"></td>
+                <td><input type="text" v-model="location" placeholder="location"></td>
+                <td><input type="text" v-model="itemcount" placeholder="nitems"></td>
+                <td><input type="text" v-model="bill" placeholder="bill"></td>
+                <td>
+                  <button class="btn btn-default border" id="addButton" @click="addUser()">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </td>
+
+
+              </tr>
+            </tbody>
+          </table>
+          <b-modal :title="'Items bought by '+userInfo.name" v-model="modalShow"><userInfo :userInfo="getUserInfo[userInfo.name]" :name="userInfo.name"></userInfo></b-modal>
+          
+
+        </div>
+      </div>
+    </div>
+  
+
+</template>
+<script lang="js">
+  import UserInfo from "@/components/UserInfo";
+  import { mapMutations, mapState, mapActions } from "vuex";
+  import { ADD_USER, LOAD_USERS, ADD_USERS, DELETE_USERS, USERS } from '../common/constants_type';
+
+
+
+  export default {
+    name: "DetailUser",
+    components: { UserInfo},
+    data() {
+      return {
+        name: '',
+        location: '',
+        itemcount : '',
+        bill:'',
+        modalShow: false,
+        userInfo: {},
+        }
+    },
+    methods: {
+      ...mapMutations([ADD_USER]),
+      ...mapActions([LOAD_USERS, DELETE_USERS, ADD_USERS]),
+      addUser() {
+      this.addUsers({ "name": this.name, "location": this.location, "itemcount": this.itemcount, "bill": this.bill });
+        this.name = '';
+        this.location = '';
+          this.itemcount = '';
+          this.bill = '';
+      },
+
+      showMsgBoxOne(index2) {
+        this.boxOne = '';
+        this.$bvModal.msgBoxConfirm('Are you sure?')
+          .then(value => {
+            this.boxOne = value
+            if (value) {
+              this.deleteUsers(index2);
+              this.loadUsers();
+             }
+          })
+          .catch(err => {
+            // An error occurred
+          })
+      }
+    },
+    computed: {
+      ...mapState([
+        USERS
+      ]),
+     
+      getUserInfo() {
+        return this.$store.getters.getUserInfo;
+      }
+
+    },
+    mounted() {
+      this.$store.dispatch(LOAD_USERS);
+    }
+    
+    
+    }
+
+</script>
+<style>
+  
+  .Mobname {
+     background-color:#343a40;
+    padding-bottom:7px;
+    width:107%;
+  }
+  .Baccolor {
+    background-color:rgb(158,152,152);
+  }
+  
+
+  @media only screen and (min-width : 768px) and (max-width: 1605px) {
+
+    .Mobname {
+      display:none;
+    }
+  }
+
+  @media only screen and (max-width:600px) {
+    .Mobname {
+      text-align:center;
+      color:white;
+      margin-top:auto;
+      margin-bottom:auto;
+    }
+    
+  }
+
+  .modal-backdrop {
+    background-color: rgb(0,0,0,0.1) !important;
+  }
+</style>
